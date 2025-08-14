@@ -18,7 +18,6 @@ import {
   Chip,
 } from '@mui/material';
 import {
-  AccountCircle,
   Lock,
   Email,
   Visibility,
