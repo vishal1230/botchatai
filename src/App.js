@@ -1,66 +1,87 @@
-// src/App.js
 import React from 'react';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
+// Import useUserData to check the user's verification status
+import { useAuthenticationStatus, useUserData } from '@nhost/react';
 import Auth from './components/Auth';
 import Chat from './components/Chat';
+// Import the new VerifyEmail component
 import VerifyEmail from './components/VerifyEmail';
-import { useAuthenticationStatus, useUserData } from '@nhost/react';
 import { Box, CircularProgress } from '@mui/material';
 
-// Define your application's theme
 const theme = createTheme({
   palette: {
     mode: 'dark',
-    primary: { main: '#8b5cf6' },
-    secondary: { main: '#06d6a0' },
+    primary: { main: '#8b5cf6', light: '#a78bfa', dark: '#7c3aed' },
+    secondary: { main: '#06d6a0', light: '#26de81', dark: '#059669' },
     background: { default: '#0f172a', paper: '#1e293b' },
+    surface: { main: '#334155' },
     text: { primary: '#f1f5f9', secondary: '#cbd5e1' },
+    divider: '#334155',
   },
   typography: {
     fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    h4: { fontWeight: 600 },
+    h6: { fontWeight: 500 },
   },
-  shape: {
-    borderRadius: 12,
+  shape: { borderRadius: 12 },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none', borderRadius: 8, fontWeight: 500, boxShadow: 'none',
+          '&:hover': { boxShadow: '0 4px 12px rgba(139, 92, 246, 0.3)' },
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundImage: 'none',
+          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3)',
+        },
+      },
+    },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-root': {
+            '& fieldset': { borderColor: '#475569' },
+            '&:hover fieldset': { borderColor: '#8b5cf6' },
+          },
+        },
+      },
+    },
   },
 });
 
 function App() {
-  // Hook to check the user's authentication status
   const { isAuthenticated, isLoading } = useAuthenticationStatus();
-  // Hook to get the authenticated user's data
+  // Get the current user's data to check verification status
   const user = useUserData();
 
-  /**
-   * Renders the main content based on the authentication and verification status.
-   */
   const renderContent = () => {
-    // While Nhost is checking the session, show a loading spinner.
     if (isLoading) {
       return (
         <Box 
-          display="flex" 
-          justifyContent="center" 
-          alignItems="center" 
-          minHeight="100vh"
+          display="flex" justifyContent="center" alignItems="center" minHeight="100vh"
+          sx={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)' }}
         >
-          <CircularProgress />
+          <CircularProgress size={40} sx={{ color: 'primary.main' }} />
         </Box>
       );
     }
 
-    // If the user is not authenticated, show the login/signup page.
+    // If not authenticated, show the Auth page.
     if (!isAuthenticated) {
       return <Auth />;
     }
 
-    // If the user is authenticated BUT their email is not verified,
-    // show the email verification prompt.
-    // The optional chaining `user?.` prevents errors if the user object is momentarily null.
+    // If authenticated, but the email is not verified, show the VerifyEmail page.
     if (!user?.emailVerified) {
       return <VerifyEmail />;
     }
-
-    // If the user is authenticated AND their email is verified, show the main chat application.
+    
+    // If authenticated and verified, show the Chat app.
     return <Chat />;
   };
 
